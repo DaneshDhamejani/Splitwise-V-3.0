@@ -5,10 +5,14 @@ import axios from 'axios';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 import backendServer from "../../webConfig";
+import { withApollo } from 'react-apollo'
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import {login} from "../../actions/actions.js";
+import {LOGIN} from "../GraphQL/queries"
 var loginsuccess = ""
+
+
 
 
 class Login extends Component {
@@ -47,27 +51,53 @@ submitOwnerLogin = (e) => {
       email : this.state.email,
       password : this.state.password
   }
-  this.props.login(data)
+  // this.props.login(data)
+  this.props.client.query({
+    query: LOGIN,
+    variables: {
+        email: data.email,
+        password: data.password
+    }
+
+}).then(res => {
+    if (res.data.error) {
+        alert("Error")
+    }
+    else {
+
+        console.log("Here",res.data.login)
+        console.log(res.data.login.token)
+        console.log(data.email)
+        if(res.data.login.token=="User present")
+        {
+          localStorage.setItem('useremail', data.email);
+        }
+
+        // localStorage.setItem('useremail', values.email);
+
+
+    }
+})
 }
 
 
-componentWillReceiveProps(nextProps) {
-  console.log("JSON.stringify(nextProps)", JSON.stringify(nextProps))
-  if (nextProps.ld.logindetails === true) {
-    loginsuccess = "true"
-    console.log("loginsuccess", loginsuccess)
-    console.log("nextProps.logindetails", nextProps.ld.logindetails)
-    //this.props.posts.unshift(nextProps.newPost);
-  }
-  else
-    loginsuccess = "false"
-}
+// componentWillReceiveProps(nextProps) {
+//   console.log("JSON.stringify(nextProps)", JSON.stringify(nextProps))
+//   if (nextProps.ld.logindetails === true) {
+//     loginsuccess = "true"
+//     console.log("loginsuccess", loginsuccess)
+//     console.log("nextProps.logindetails", nextProps.ld.logindetails)
+//     //this.props.posts.unshift(nextProps.newPost);
+//   }
+//   else
+//     loginsuccess = "false"
+// }
 
 
   render() {
     var redirectVar = null;
     
-    if(localStorage.getItem('myjwttoken') && localStorage.getItem('useremail') ){
+    if(localStorage.getItem('useremail')){
           console.log("Local storage found")
           redirectVar = <Redirect to= "/dashboard"/>
         }
@@ -127,5 +157,5 @@ const mapStateToProps = state => ({
 ld : state.login
 })
 
-export default connect(mapStateToProps, {login})(Login); 
 
+export default withApollo(Login);

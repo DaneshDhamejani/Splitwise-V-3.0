@@ -7,7 +7,15 @@ import backendServer from "../../webConfig";
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import {signup} from "../../actions/actions.js";
+import {SIGNUP} from "../GraphQL/mutations"
+import { withApollo } from 'react-apollo'
+import { graphql } from 'react-apollo';
+
+
 var swal = require('sweetalert')
+
+
+
 
 class Signup extends Component {
     constructor(props) {
@@ -53,23 +61,39 @@ class Signup extends Component {
             email: this.state.email,
             password: this.state.password
         }
-        this.props.signup(data);
+        // this.props.signup(data);
+        this.props.SIGNUP({
+            variables: {
+                email: data.email,
+                password: data.password,
+                name: data.name
+            }
+
+        }).then(res => {
+            if (res.data.error) {
+                alert("Error")
+            }
+            else {
+             console.log("User signed up!",res.data.signup)
+            }
+        })
+        
     }
     
-        componentWillReceiveProps(nextProps) {
-            console.log("nextProps.ss.signupstatus", JSON.stringify(nextProps.ss.signupstatus));
-            if(nextProps.ss.signupstatus) {
-                console.log("nextProps.ss.signupstatus", nextProps.ss.signupstatus);
-                // this.props.posts.unshift(nextProps.newPost);
-            }
-            else if(nextProps.ss.signupstatus==true) {
-                swal("You are successfully signed up!", "Please Login now.", "success");
-                this.setState({ userCreated :true })
-            }
-            else if(nextProps.ss.signupstatus==false) {
-                this.setState({ userCreated : false })
-            }
-        }
+        // componentWillReceiveProps(nextProps) {
+        //     console.log("nextProps.ss.signupstatus", JSON.stringify(nextProps.ss.signupstatus));
+        //     if(nextProps.ss.signupstatus) {
+        //         console.log("nextProps.ss.signupstatus", nextProps.ss.signupstatus);
+        //         // this.props.posts.unshift(nextProps.newPost);
+        //     }
+        //     else if(nextProps.ss.signupstatus==true) {
+        //         swal("You are successfully signed up!", "Please Login now.", "success");
+        //         this.setState({ userCreated :true })
+        //     }
+        //     else if(nextProps.ss.signupstatus==false) {
+        //         this.setState({ userCreated : false })
+        //     }
+        // }
     
 
 
@@ -152,16 +176,32 @@ class Signup extends Component {
 }
 
 
-Signup.propTypes = {
-    signup : PropTypes.func.isRequired,
-    ss : PropTypes.string
-  }
+// Signup.propTypes = {
+//     signup : PropTypes.func.isRequired,
+//     ss : PropTypes.string
+//   }
 
-const mapStateToProps = state => ({
-  ss : state.usersignup
-})
-
-
+// const mapStateToProps = state => ({
+//   ss : state.usersignup
+// })
 
 
-export default connect(mapStateToProps,{signup})(Signup);  
+
+
+// export default connect((Signup));  
+// export default withApollo(Signup);
+
+
+// const mapStateToProps = (state) => {
+
+//     return {
+//         user: state.user
+//     }
+// }
+
+
+const createStoryMutation = graphql(SIGNUP, {
+    name: 'SIGNUP'
+})(Signup)
+
+export default createStoryMutation

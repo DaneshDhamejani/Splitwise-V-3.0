@@ -13,7 +13,7 @@ class NavbarClass extends React.Component {
     handleLogout = () => {
         
         
-        localStorage.removeItem('myjwttoken');
+        // localStorage.removeItem('myjwttoken');
         localStorage.removeItem('useremail');
         localStorage.removeItem('username');
         localStorage.removeItem('signupcheck');
